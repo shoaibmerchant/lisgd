@@ -20,8 +20,9 @@ lisgd \- libinput synthetic gesture daemon
 libinput touch events to run specific commands to execute. For example,
 dragging left to right with one finger could execute a particular command
 like launching a terminal. Directional L-R, R-L, U-D, and D-U gestures and
-diagnol LD-RU, RD-LU, UR-DL, UL-DR gestures are supported with 1 through 
-n fingers.
+diagnol LD-RU, RD-LU, UR-DL, UL-DR gestures are supported with 1 through
+n fingers and can be bound to the screen's edges and/or made sensitive to
+the distance of the gesture.
 
 Unlike other libinput gesture daemons, lisgd uses touch events to
 recognize synthetic swipe gestures rather than using the libinput's
@@ -29,9 +30,9 @@ gesture events. The advantage of this is that the synthetic gestures
 you define via lisgd can be used on touchscreens, which normal libinput
 gestures don't support.
 
-This program was built for use on the Pinephone however it could be used in 
-general for any device that supports touch events, like laptop touchscreens 
-or similar. You may want to adjust the threshold depending on the device 
+This program was built for use on the Pinephone however it could be used in
+general for any device that supports touch events, like laptop touchscreens
+or similar. You may want to adjust the threshold depending on the device
 you're using.
 
 
@@ -41,9 +42,9 @@ you're using.
 Path of the dev filesystem device to monitor (like /dev/input/event1).
 
 .TP
-.BR \-g ", " \-g\ nfingers,gesture,command\fR
-Allow you to bind a gesture wherein nfingers is an integer, gesture is 
-one of {LR,RL,DU,UD,DLUR,URDL,ULDR,DLUR}, and the shell command to be executed.
+.BR \-g ", " \-g\ nfingers,gesture,edge,distance,command\fR
+Allows you to bind a gesture wherein nfingers is an integer, gesture is
+one of {LR,RL,DU,UD,DLUR,URDL,ULDR,DLUR}, edge is one of * (any), N (none), L (left), R (right), T (top), B (bottom), TL (top left), TR (top right), BL (bottom left), BR (bottom right) and distance is one of * (any), S (short), M (medium), L (large). command is the shell command to be executed.
 
 The -g option can be used multiple times to bind multiple gestures.
 
