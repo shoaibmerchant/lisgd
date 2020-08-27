@@ -15,8 +15,10 @@ unsigned int degreesleniency = 15;
 unsigned int timeoutms = 800;
 unsigned int orientation = 0;
 unsigned int verbose = 0;
-double edgesizex = 50.0;
-double edgesizey = 50.0;
+double edgesizeleft = 50.0;
+double edgesizetop = 50.0;
+double edgesizeright = 50.0;
+double edgesizebottom = 50.0;
 char *device = "/dev/input/event1";
 
 Gesture gestures[] = {

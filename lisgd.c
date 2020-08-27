@@ -167,22 +167,22 @@ Edge
 gesturecalculateedge(double x0, double y0, double x1, double y1) {
 		Edge horizontal = EdgeNone;
 		Edge vertical = EdgeNone;
-		if (x0 <= edgesizex) {
+		if (x0 <= edgesizeleft) {
 			horizontal = EdgeLeft;
-		} else if (x0 >= screenwidth - edgesizex) {
+		} else if (x0 >= screenwidth - edgesizeright) {
 			horizontal = EdgeRight;
-		} else if (x1 <= edgesizex) {
+		} else if (x1 <= edgesizeleft) {
 			horizontal = EdgeLeft;
-		} else if (x1 >= screenwidth - edgesizex) {
+		} else if (x1 >= screenwidth - edgesizeright) {
 			horizontal = EdgeRight;
 		}
-		if (y0 <= edgesizey) {
+		if (y0 <= edgesizetop) {
 			vertical = EdgeTop;
-		} else if (y0 >= screenheight - edgesizey) {
+		} else if (y0 >= screenheight - edgesizebottom) {
 			vertical = EdgeBottom;
-		} else if (y1 <= edgesizey) {
+		} else if (y1 <= edgesizetop) {
 			vertical = EdgeTop;
-		} else if (y1 >= screenheight - edgesizey) {
+		} else if (y1 >= screenheight - edgesizebottom) {
 			vertical = EdgeBottom;
 		}
 		if (horizontal == EdgeLeft && vertical == EdgeTop) {
@@ -348,7 +348,7 @@ touchup(struct libinput_event *e)
 	if (pendingswipe == swipe) nfpendingswipe++;
 	resetslot(slot);
 
-	// All fingers up - check if within milisecond limit, exec, & reset
+	// All fingers up - check if within millisecond limit, exec, & reset
 	if (nfdown == 0) {
 		if (
 			timeoutms >
@@ -482,7 +482,7 @@ main(int argc, char *argv[])
 				}
 			}
 		} else {
-			fprintf(stderr, "lisgd [-v] [-d /dev/input/0] [-o 0] [-t 200] [-r 20] [-m 400] [-g '1,LR,L,notify-send swiped left to right from left edge']\n");
+			fprintf(stderr, "lisgd [-v] [-d /dev/input/0] [-o 0] [-t 200] [-r 20] [-m 400] [-g '1,LR,L,*,notify-send swiped left to right from left edge']\n");
 			exit(1);
 		}
 	}
