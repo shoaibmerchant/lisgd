@@ -1,3 +1,4 @@
+PREFIX = /usr
 SRC = lisgd.c
 OBJ = ${SRC:.c=.o}
 LDFLAGS = -linput -lm
