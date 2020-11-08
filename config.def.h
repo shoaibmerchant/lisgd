@@ -31,6 +31,6 @@ Gesture gestures[] = {
 	{ 1,         SwipeULDR,   EdgeAny, DistanceAny, "sxmo_brightness.sh down" },
 	{ 2,         SwipeLR,     EdgeAny, DistanceAny, "xdotool key --clearmodifiers Alt+e" },
 	{ 2,         SwipeRL,     EdgeAny, DistanceAny, "xdotool key --clearmodifiers Alt+r" },
-	{ 2,         SwipeDU,     EdgeAny, DistanceAny, "pidof svkbd-sxmo || svkbd-sxmo &" },
-	{ 2,         SwipeUD,     EdgeAny, DistanceAny, "pkill -9 svkbd-sxmo" },
+	{ 2,         SwipeDU,     EdgeAny, DistanceAny, "pidof $KEYBOARD || $KEYBOARD &" },
+	{ 2,         SwipeUD,     EdgeAny, DistanceAny, "pkill -9 $KEYBOARD" },
 };
