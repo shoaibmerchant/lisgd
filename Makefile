@@ -32,7 +32,7 @@ install: all
 
 	mkdir -p ${DESTDIR}${PREFIX}/share/man/man1
 	cp lisgd.1 ${DESTDIR}${PREFIX}/share/man/man1
-	chmod 644 ${DESTDIR}${PREFIX}/share/man/man1
+	chmod 755 ${DESTDIR}${PREFIX}/share/man/man1
 
 
 clean:
