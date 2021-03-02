@@ -19,7 +19,7 @@ double edgesizeleft = 50.0;
 double edgesizetop = 50.0;
 double edgesizeright = 50.0;
 double edgesizebottom = 50.0;
-char *device = "/dev/input/event1";
+char *device = "/dev/input/touchscreen";
 
 Gesture gestures[] = {
 	/* nfingers  gesturetype  command */
