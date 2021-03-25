@@ -42,9 +42,14 @@ you're using.
 Path of the dev filesystem device to monitor (like /dev/input/event1).
 
 .TP
-.BR \-g ", " \-g\ nfingers,gesture,edge,distance,command\fR
+.BR \-g ", " \-g\ nfingers,gesture,edge,distance,,actmode,command\fR
 Allows you to bind a gesture wherein nfingers is an integer, gesture is
-one of {LR,RL,DU,UD,DLUR,URDL,ULDR,DLUR}, edge is one of * (any), N (none), L (left), R (right), T (top), B (bottom), TL (top left), TR (top right), BL (bottom left), BR (bottom right) and distance is one of * (any), S (short), M (medium), L (large). command is the shell command to be executed.
+one of {LR,RL,DU,UD,DLUR,URDL,ULDR,DLUR}, edge is one of * (any), N (none), L
+(left), R (right), T (top), B (bottom), TL (top left), TR (top right), BL
+(bottom left), BR (bottom right) and distance is one of * (any), S (short), M
+(medium), L (large), actmode is R (release) for normal mode and P (pressed) for
+pressed mode (but this field may be omitted entirely for backward
+compatibility, command is the shell command to be executed.
 
 The -g option can be used multiple times to bind multiple gestures.
 
@@ -68,7 +73,12 @@ but with 15 degrees of leniency will be recognized between 165-195 degrees.
 .TP
 .BR \-t ", " \-t\ distancethreshold\fR
 Threshold in libinput units (pixels) after which a gesture registers. Defaults
-to 300.
+to 125.
+
+.TP
+.BR \-T ", " \-T\ distancethreshold_pressed\fR
+Threshold in libinput units (pixels) after which a gesture registers when fingers
+are not lifted. Defaults to 60.
 
 .TP
 .BR \-v \fR

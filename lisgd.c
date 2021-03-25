@@ -51,11 +51,18 @@ enum {
 };
 typedef int Distance;
 
+enum {
+	ActModeReleased, //action triggers when fingers are released
+	ActModePressed, //action triggers while finger is not lifted yet (as soon as a swipe is completed)
+};
+typedef int ActMode;
+
 typedef struct {
 	int nfswipe;
 	Swipe swipe;
 	Edge edge;
 	Distance distance;
+	ActMode actmode;
 	char *command;
 } Gesture;
 
@@ -65,6 +72,7 @@ typedef struct {
 /* Globals */
 Gesture *gestsarr;
 int gestsarrlen;
+int have_actmode_pressed = 0; //do we have gestures using actmode pressed?
 Swipe pendingswipe;
 Edge pendingedge;
 Distance pendingdistance;
@@ -97,7 +105,7 @@ gesturecalculateswipewithindegrees(double gestdegrees, double wantdegrees) {
 }
 
 Swipe
-gesturecalculateswipe(double x0, double y0, double x1, double y1) {
+gesturecalculateswipe(double x0, double y0, double x1, double y1, int mindistance) {
 	double t, degrees, dist;
 
 	t = atan2(x1 - x0, y0 - y1);
@@ -107,7 +115,7 @@ gesturecalculateswipe(double x0, double y0, double x1, double y1) {
 	if (verbose)
 		fprintf(stderr, "Swipe distance=[%.2f]; degrees=[%.2f]\n", dist, degrees);
 
-	if (dist < distancethreshold) return -1;
+	if (dist < mindistance) return -1;
 	else if (gesturecalculateswipewithindegrees(degrees, 0))   return SwipeDU;
 	else if (gesturecalculateswipewithindegrees(degrees, 45))  return SwipeDLUR;
 	else if (gesturecalculateswipewithindegrees(degrees, 90))  return SwipeLR;
@@ -200,8 +208,8 @@ gesturecalculateedge(double x0, double y0, double x1, double y1) {
 		}
 }
 
-void
-gestureexecute(Swipe swipe, int nfingers, Edge edge, Distance distance) {
+int
+gestureexecute(Swipe swipe, int nfingers, Edge edge, Distance distance, ActMode actmode) {
 	int i;
 
 	for (i = 0; i < gestsarrlen; i++) {
@@ -219,12 +227,14 @@ gestureexecute(Swipe swipe, int nfingers, Edge edge, Distance distance) {
 				((edge == CornerTopLeft || edge == CornerBottomLeft) && gestsarr[i].edge == EdgeLeft) ||
 				((edge == CornerTopRight || edge == CornerBottomRight) && gestsarr[i].edge == EdgeRight)
 			   )
+			&& (actmode == ActModeReleased || gestsarr[i].actmode == actmode)
 			) {
 			if (verbose) fprintf(stderr, "Execute %s\n", gestsarr[i].command);
 			execcommand(gestsarr[i].command);
-			break; //execute first match only
+			return 1; //execute first match only
 		}
 	}
+	return 0;
 }
 
 static int
@@ -293,23 +303,50 @@ touchdown(struct libinput_event *e)
 }
 
 void
+resetslot(int slot) {
+	xend[slot] = NOMOTION;
+	yend[slot] = NOMOTION;
+	xstart[slot] = NOMOTION;
+	ystart[slot] = NOMOTION;
+}
+
+
+void
 touchmotion(struct libinput_event *e)
 {
 	struct libinput_event_touch *tevent;
+	struct timespec now;
 	int slot;
 
 	tevent = libinput_event_get_touch_event(e);
 	slot = libinput_event_touch_get_slot(tevent);
 	xend[slot] = libinput_event_touch_get_x(tevent);
 	yend[slot] = libinput_event_touch_get_y(tevent);
-}
 
-void
-resetslot(int slot) {
-	xend[slot] = NOMOTION;
-	yend[slot] = NOMOTION;
-	xstart[slot] = NOMOTION;
-	ystart[slot] = NOMOTION;
+	if (have_actmode_pressed) {
+		Swipe swipe = gesturecalculateswipe(
+			xstart[slot], ystart[slot], xend[slot], yend[slot], distancethreshold_pressed
+		);
+		if (swipe != -1) {
+			Edge edge = gesturecalculateedge(
+				xstart[slot], ystart[slot], xend[slot], yend[slot]
+			);
+			clock_gettime(CLOCK_MONOTONIC_RAW, &now);
+			if (
+				timeoutms >
+				((now.tv_sec - timedown.tv_sec) * 1000000 + (now.tv_nsec - timedown.tv_nsec) / 1000) / 1000
+			) {
+				if (verbose) fprintf(stderr, "(Attempting to find matching pressed gesture)\n");
+				if (gestureexecute(swipe, nfdown, edge, DistanceAny, ActModePressed)) {
+					//we found and executed a matching gesture, reset the slot
+					if (verbose) fprintf(stderr, "(Pressed gestured Executed)\n");
+					xstart[slot] = xend[slot];
+					ystart[slot] = yend[slot];
+					timedown = now;
+				}
+			}
+		}
+	}
 }
 
 void
@@ -332,7 +369,7 @@ touchup(struct libinput_event *e)
 	) return;
 
 	Swipe swipe = gesturecalculateswipe(
-		xstart[slot], ystart[slot], xend[slot], yend[slot]
+		xstart[slot], ystart[slot], xend[slot], yend[slot], distancethreshold
 	);
 	Edge edge = gesturecalculateedge(
 		xstart[slot], ystart[slot], xend[slot], yend[slot]
@@ -353,7 +390,7 @@ touchup(struct libinput_event *e)
 		if (
 			timeoutms >
 			((now.tv_sec - timedown.tv_sec) * 1000000 + (now.tv_nsec - timedown.tv_nsec) / 1000) / 1000
-		) gestureexecute(swipe, nfpendingswipe, edge, distance);
+		) gestureexecute(swipe, nfpendingswipe, edge, distance, ActModeReleased);
 
 		nfpendingswipe = 0;
 	}
@@ -433,6 +470,8 @@ main(int argc, char *argv[])
 			device = argv[++i];
 		} else if (!strcmp(argv[i], "-t")) {
 			distancethreshold = atoi(argv[++i]);
+		} else if (!strcmp(argv[i], "-T")) {
+			distancethreshold_pressed = atoi(argv[++i]);
 		} else if (!strcmp(argv[i], "-r")) {
 			degreesleniency = atoi(argv[++i]);
 		} else if (!strcmp(argv[i], "-m")) {
@@ -447,7 +486,7 @@ main(int argc, char *argv[])
 				exit(EXIT_FAILURE);
 			}
 			gestpt = strtok(argv[++i], ",");
-			for (j = 0; gestpt != NULL && j < 5;	gestpt = strtok(NULL, ","), j++) {
+			for (j = 0; gestpt != NULL && j < 6; gestpt = strtok(NULL, ","), j++) {
 				switch(j) {
 					case 0: gestsarr[gestsarrlen - 1].nfswipe = atoi(gestpt); break;
 					case 1:
@@ -478,11 +517,23 @@ main(int argc, char *argv[])
 						if (!strcmp(gestpt, "S")) gestsarr[gestsarrlen-1].distance = DistanceShort;
 						if (!strcmp(gestpt, "*")) gestsarr[gestsarrlen-1].distance = DistanceAny;
 						break;
-					case 4: gestsarr[gestsarrlen - 1].command = gestpt; break;
+					case 4:
+						if (!strcmp(gestpt, "P")) {
+							gestsarr[gestsarrlen-1].actmode = ActModePressed;
+							have_actmode_pressed++;
+						} else {
+							gestsarr[gestsarrlen-1].actmode = ActModeReleased;
+							if (strcmp(gestpt, "R") != 0) {
+								//for backward compatibility, allow fourth field to hold command
+								gestsarr[gestsarrlen - 1].command = gestpt;
+							}
+						}
+						break;
+					case 5: gestsarr[gestsarrlen - 1].command = gestpt; break;
 				}
 			}
 		} else {
-			fprintf(stderr, "lisgd [-v] [-d /dev/input/0] [-o 0] [-t 200] [-r 20] [-m 400] [-g '1,LR,L,*,notify-send swiped left to right from left edge']\n");
+			fprintf(stderr, "lisgd [-v] [-d /dev/input/0] [-o 0] [-t 200] [-r 20] [-m 400] [-g '1,LR,L,*,R,notify-send swiped left to right from left edge']\n");
 			exit(1);
 		}
 	}
