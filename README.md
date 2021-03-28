@@ -19,24 +19,28 @@ like laptop touchscreens or similar. You may want to adjust the threshold
 depending on the device you're using.
 
 ## Configuration
+
 Configuration can be done in two ways:
 
 1. Through a suckless style `config.h`; see the `config.def.h`
 2. Through commandline flags which override the default config.h values
 
 ### Suckless-style config.h based configuration
+
 Copy the example `config.def.h` configuration to `config.h`.
 
 ### Commandline flags based configuration
+
 Flags:
 
 - **-d [devicenodepath]**: Defines the dev filesystem device to monitor
   - Example: `lisgd -d /dev/input/input1`
-- **-g [nfingers,gesture,edge,distance,command]**: Allows you to bind a gesture wherein nfingers is an integer, gesture is
-one of {LR,RL,DU,UD,DLUR,URDL,ULDR,DLUR}, edge is one of * (any), N (none), L (left), R (right), T (top), B (bottom), TL (top left), TR (top right), BL (bottom left), BR (bottom right) and distance is one of * (any), S (short), M (medium), L (large). command is the shell command to be executed. The -g option can be used
+- **-g [nfingers,gesture,edge,distance,actmode,command]**: Allows you to bind a gesture wherein nfingers is an integer, gesture is
+one of {LR,RL,DU,UD,DLUR,URDL,ULDR,DLUR}, edge is one of * (any), N (none), L (left), R (right), T (top), B (bottom), TL (top left), TR (top right), BL (bottom left), BR (bottom right) and distance is one of * (any), S (short), M (medium), L (large). actmode is R (release) for normal mode and P (pressed) for pressed mode (but this field may be omitted entirely for backward
+compatibility), command is the shell command to be executed. The -g option can be used
   multiple times to bind multiple gestures.
-  - Single Gesture Example: `lisgd -g "1,LR,*,*,notify-send swiped lr"`
-  - Multiple Gestures Example: `lisgd -g "1,LR,*,*,notify-send swiped lr" -g "1,RL,R,*,noitfy-send swiped rl from right edge"`
+  - Single Gesture Example: `lisgd -g "1,LR,*,*,R,notify-send swiped lr"`
+  - Multiple Gestures Example: `lisgd -g "1,LR,*,*,R,notify-send swiped lr" -g "1,RL,R,*,R,notify-send swiped rl from right edge"`
 - **-m [timeoutms]**: Number of milliseconds gestures must be performed within
     to be registered. After the timeoutms value; the gesture won't be registered.
   - Example: `lisgd -m 1200`
@@ -50,7 +54,11 @@ one of {LR,RL,DU,UD,DLUR,URDL,ULDR,DLUR}, edge is one of * (any), N (none), L (l
   between 165-195 degrees.
   - Example: `lisgd -r 20`
 - **-t [threshold_units]**: Threshold in libinput units (pixels) after which a
-  gesture registers. Defaults to 300.
-  - Example: `lisgd -t 400`
+  gesture registers. Defaults to 125.
+  - Example: `lisgd -t 125`
+- **-T [threshold_units]**: Threshold in libinput units (pixels) after which a
+  gesture registers for 'pressed' gestures where fingers are not lifted.
+  Defaults to 60.
+  - Example: `lisgd -t 60`
 - **-v**: Verbose mode, useful for debugging
   - Example: `lisgd -v`
