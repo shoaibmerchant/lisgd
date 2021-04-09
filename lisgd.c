@@ -542,8 +542,13 @@ main(int argc, char *argv[])
 	if (!(dpy = XOpenDisplay(0)))
 		die("cannot open display");
 	screen = DefaultScreen(dpy);
-	screenwidth = DisplayWidth(dpy, screen);
-	screenheight = DisplayHeight(dpy, screen);
+	if (0 == orientation % 2) {
+		screenwidth = DisplayWidth(dpy, screen);
+		screenheight = DisplayHeight(dpy, screen);
+	} else {
+		screenwidth = DisplayHeight(dpy, screen);
+		screenheight = DisplayWidth(dpy, screen);
+	}
 
 	// E.g. no gestures passed on CLI - used gestures defined in config.def.h
 	if (gestsarrlen == 0) {
