@@ -33,5 +33,5 @@ Gesture gestures[] = {
 	{ 2,         SwipeLR,     EdgeAny, DistanceAny, ActModeReleased, "xdotool key --clearmodifiers Alt+e" },
 	{ 2,         SwipeRL,     EdgeAny, DistanceAny, ActModeReleased, "xdotool key --clearmodifiers Alt+r" },
 	{ 2,         SwipeDU,     EdgeAny, DistanceAny, ActModeReleased, "pidof $KEYBOARD || $KEYBOARD &" },
-	{ 2,         SwipeUD,     EdgeAny, DistanceAny, ActModeReleased, "pkill -9 $KEYBOARD" },
+	{ 2,         SwipeUD,     EdgeAny, DistanceAny, ActModeReleased, "pkill -9 -f $KEYBOARD" },
 };
