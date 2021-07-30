@@ -22,6 +22,7 @@ double edgesizeright = 50.0;
 double edgesizebottom = 50.0;
 char *device = "/dev/input/touchscreen";
 
+//Gestures can also be specified interactively from the command line using -g
 Gesture gestures[] = {
 	/* nfingers  gesturetype  command */
 	{ 1,         SwipeLR,     EdgeAny, DistanceAny, ActModeReleased, "xdotool key --clearmodifiers Alt+Shift+e" },

@@ -520,7 +520,6 @@ main(int argc, char *argv[])
 					case 4:
 						if (!strcmp(gestpt, "P")) {
 							gestsarr[gestsarrlen-1].actmode = ActModePressed;
-							have_actmode_pressed++;
 						} else {
 							gestsarr[gestsarrlen-1].actmode = ActModeReleased;
 							if (strcmp(gestpt, "R") != 0) {
@@ -561,6 +560,8 @@ main(int argc, char *argv[])
 	for (i = 0; i < gestsarrlen; i++) {
 		gestsarr[i].swipe = swipereorient(gestsarr[i].swipe, orientation);
 		gestsarr[i].edge = edgereorient(gestsarr[i].edge, orientation);
+		//Detect whether ActMode pressed is used
+		if (gestsarr[i].actmode == ActModePressed) have_actmode_pressed++;
 	}
 
 	run();
