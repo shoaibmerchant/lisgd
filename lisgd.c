@@ -10,7 +10,6 @@
 #include <sys/select.h>
 #include <time.h>
 #include <unistd.h>
-#include <X11/Xlib.h>
 
 /* Defines */
 #define MAXSLOTS 20
@@ -79,9 +78,7 @@ Distance pendingdistance;
 double xstart[MAXSLOTS], xend[MAXSLOTS], ystart[MAXSLOTS], yend[MAXSLOTS];
 unsigned nfdown = 0, nfpendingswipe = 0;
 struct timespec timedown;
-static Display *dpy;
-static int screen;
-static int screenwidth, screenheight;
+static int screenwidth = 0, screenheight = 0;
 
 void
 die(char * msg)
@@ -468,6 +465,10 @@ main(int argc, char *argv[])
 			verbose = 1;
 		} else if (!strcmp(argv[i], "-d")) {
 			device = argv[++i];
+		} else if (!strcmp(argv[i], "-h")) {
+			screenheight = atoi(argv[++i]);
+		} else if (!strcmp(argv[i], "-w")) {
+			screenwidth = atoi(argv[++i]);
 		} else if (!strcmp(argv[i], "-t")) {
 			distancethreshold = atoi(argv[++i]);
 		} else if (!strcmp(argv[i], "-T")) {
@@ -537,16 +538,8 @@ main(int argc, char *argv[])
 		}
 	}
 
-	//get display size
-	if (!(dpy = XOpenDisplay(0)))
-		die("cannot open display");
-	screen = DefaultScreen(dpy);
-	if (0 == orientation % 2) {
-		screenwidth = DisplayWidth(dpy, screen);
-		screenheight = DisplayHeight(dpy, screen);
-	} else {
-		screenwidth = DisplayHeight(dpy, screen);
-		screenheight = DisplayWidth(dpy, screen);
+	if (0 == screenwidth || 0 == screenheight) {
+		die("You must provide -h and -w");
 	}
 
 	// E.g. no gestures passed on CLI - used gestures defined in config.def.h

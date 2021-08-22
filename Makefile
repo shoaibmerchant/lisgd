@@ -3,9 +3,6 @@ SRC = lisgd.c
 OBJ = ${SRC:.c=.o}
 LDFLAGS = -linput -lm
 
-X11INC = /usr/X11R6/include
-X11LIB = /usr/X11R6/lib
-
 all: options lisgd
 
 options:
