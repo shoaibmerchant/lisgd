@@ -10,6 +10,8 @@
 #include <sys/select.h>
 #include <time.h>
 #include <unistd.h>
+#include <X11/Xlib.h>
+#include <wayland-client.h>
 
 /* Defines */
 #define MAXSLOTS 20
@@ -78,6 +80,11 @@ Distance pendingdistance;
 double xstart[MAXSLOTS], xend[MAXSLOTS], ystart[MAXSLOTS], yend[MAXSLOTS];
 unsigned nfdown = 0, nfpendingswipe = 0;
 struct timespec timedown;
+static Display *dpy;
+static int screen;
+struct wl_display *wl_display;
+struct wl_registry *wl_registry;
+struct wl_output *wl_output;
 static int screenwidth = 0, screenheight = 0;
 
 void
@@ -448,6 +455,66 @@ run()
 	libinput_unref(li);
 }
 
+static void
+display_handle_geometry(void *data, struct wl_output *wl_output, int x, int y, int physical_width, int physical_height, int subpixel, const char *make, const char *model, int transform)
+{
+	orientation = transform;
+	if (orientation == 1) {
+		orientation = 3;
+	} else if (orientation == 3) {
+		orientation = 1;
+	}
+}
+
+static void
+display_handle_done(void *data, struct wl_output *wl_output)
+{
+}
+
+static void
+display_handle_scale(void *data, struct wl_output *wl_output, int32_t scale)
+{
+}
+
+static void
+display_handle_mode(void *data, struct wl_output *wl_output, uint32_t flags, int width, int height, int refresh)
+{
+	screenwidth = width;
+	screenheight = height;
+}
+
+static const struct wl_output_listener output_listener = {
+	.geometry = display_handle_geometry,
+	.mode = display_handle_mode,
+	.done = display_handle_done,
+	.scale = display_handle_scale
+};
+
+static void
+registry_global(void *data, struct wl_registry *wl_registry,
+		uint32_t name, const char *interface, uint32_t version)
+{
+	struct client_state *state = data;
+	if (strcmp(interface, "wl_output") == 0) {
+		if (!wl_output) {
+			wl_output = wl_registry_bind(wl_registry, name, &wl_output_interface, 3);
+			wl_output_add_listener(wl_output, &output_listener, NULL);
+		}
+	};
+}
+
+static void
+registry_global_remove(void *data,
+		struct wl_registry *wl_registry, uint32_t name)
+{
+}
+
+static const struct
+wl_registry_listener wl_registry_listener = {
+	.global = registry_global,
+	.global_remove = registry_global_remove,
+};
+
 int
 main(int argc, char *argv[])
 {
@@ -465,10 +532,6 @@ main(int argc, char *argv[])
 			verbose = 1;
 		} else if (!strcmp(argv[i], "-d")) {
 			device = argv[++i];
-		} else if (!strcmp(argv[i], "-h")) {
-			screenheight = atoi(argv[++i]);
-		} else if (!strcmp(argv[i], "-w")) {
-			screenwidth = atoi(argv[++i]);
 		} else if (!strcmp(argv[i], "-t")) {
 			distancethreshold = atoi(argv[++i]);
 		} else if (!strcmp(argv[i], "-T")) {
@@ -538,8 +601,27 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if (0 == screenwidth || 0 == screenheight) {
-		die("You must provide -h and -w");
+	//get display size
+	if (getenv("WAYLAND_DISPLAY")) {
+		wl_display = wl_display_connect(NULL);
+		wl_registry = wl_display_get_registry(wl_display);
+		wl_registry_add_listener(wl_registry, &wl_registry_listener, NULL);
+		wl_display_roundtrip(wl_display);
+		wl_display_dispatch(wl_display);
+	} else if (getenv("DISPLAY")) {
+		if (!(dpy = XOpenDisplay(0))) {
+			die("cannot open X display");
+		}
+		screen = DefaultScreen(dpy);
+		if (0 == orientation % 2) {
+			screenwidth = DisplayWidth(dpy, screen);
+			screenheight = DisplayHeight(dpy, screen);
+		} else {
+			screenwidth = DisplayHeight(dpy, screen);
+			screenheight = DisplayWidth(dpy, screen);
+		}
+	} else {
+		die("cannot detect display environment");
 	}
 
 	// E.g. no gestures passed on CLI - used gestures defined in config.def.h
