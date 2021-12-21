@@ -542,6 +542,10 @@ main(int argc, char *argv[])
 			timeoutms = atoi(argv[++i]);
 		} else if (!strcmp(argv[i], "-o")) {
 			orientation = atoi(argv[++i]);
+		} else if (!strcmp(argv[i], "-h")) {
+			screenheight = atoi(argv[++i]);
+		} else if (!strcmp(argv[i], "-w")) {
+			screenwidth = atoi(argv[++i]);
 		} else if (!strcmp(argv[i], "-g")) {
 			gestsarrlen++;
 			gestsarr = realloc(gestsarr, (gestsarrlen * sizeof(Gesture)));
@@ -601,27 +605,29 @@ main(int argc, char *argv[])
 		}
 	}
 
-	//get display size
-	if (getenv("WAYLAND_DISPLAY")) {
-		wl_display = wl_display_connect(NULL);
-		wl_registry = wl_display_get_registry(wl_display);
-		wl_registry_add_listener(wl_registry, &wl_registry_listener, NULL);
-		wl_display_roundtrip(wl_display);
-		wl_display_dispatch(wl_display);
-	} else if (getenv("DISPLAY")) {
-		if (!(dpy = XOpenDisplay(0))) {
-			die("cannot open X display");
-		}
-		screen = DefaultScreen(dpy);
-		if (0 == orientation % 2) {
-			screenwidth = DisplayWidth(dpy, screen);
-			screenheight = DisplayHeight(dpy, screen);
+	// Get display size (if not set with -w/-h)
+	if (screenwidth == 0 && screenheight == 0) {
+		if (getenv("WAYLAND_DISPLAY")) {
+			wl_display = wl_display_connect(NULL);
+			wl_registry = wl_display_get_registry(wl_display);
+			wl_registry_add_listener(wl_registry, &wl_registry_listener, NULL);
+			wl_display_roundtrip(wl_display);
+			wl_display_dispatch(wl_display);
+		} else if (getenv("DISPLAY")) {
+			if (!(dpy = XOpenDisplay(0))) {
+				die("Cannot open X display");
+			}
+			screen = DefaultScreen(dpy);
+			if (0 == orientation % 2) {
+				screenwidth = DisplayWidth(dpy, screen);
+				screenheight = DisplayHeight(dpy, screen);
+			} else {
+				screenwidth = DisplayHeight(dpy, screen);
+				screenheight = DisplayWidth(dpy, screen);
+			}
 		} else {
-			screenwidth = DisplayHeight(dpy, screen);
-			screenheight = DisplayWidth(dpy, screen);
+			die("Cannot detect display environment ($DISPLAY and $WAYLAND_DISPLAY unset); and no -w / -h screen geometry parameter options set");
 		}
-	} else {
-		die("cannot detect display environment");
 	}
 
 	// E.g. no gestures passed on CLI - used gestures defined in config.def.h
