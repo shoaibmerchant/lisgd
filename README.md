@@ -60,5 +60,13 @@ compatibility), command is the shell command to be executed. The -g option can b
   gesture registers for 'pressed' gestures where fingers are not lifted.
   Defaults to 60.
   - Example: `lisgd -t 60`
+- **-w [screenwidth]**: Width of screen used for edge-based gestures. Use in
+  conjunction with -h. If unset dynamic X/Wayland screen geometry detection is
+  used.
+  - Example: `lisgd -w 600`
+- **-h [screenheight]**: Height of screen used for edge-based gestures. Use in
+  conjunction with -w. If unset dynamic X/Wayland screen geometry detection is
+  used.
+  - Example: `lisgd -h 500`
 - **-v**: Verbose mode, useful for debugging
   - Example: `lisgd -v`

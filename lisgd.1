@@ -10,6 +10,8 @@ lisgd \- libinput synthetic gesture daemon
 [\fB\-t\fR \fIthreshold\fR]
 [\fB\-m\fR \fItimeoutms\fR]
 [\fB\-o\fR \fIorientation\fR]
+[\fB\-w\fR \fIwidth\fR]
+[\fB\-h\fR \fIheight\fR]
 [\fB\-r\fR \fIdegreesofleniency\fR]
 [\fB\-v]
 
@@ -79,6 +81,20 @@ to 125.
 .BR \-T ", " \-T\ distancethreshold_pressed\fR
 Threshold in libinput units (pixels) after which a gesture registers when fingers
 are not lifted. Defaults to 60.
+
+.TP
+.BR \-w ", " \-w\ screnwidth\fR
+Allows you to specify the width of the screen area to be used for
+edge-based gestures. Should be used in conjunction with -h. If unset,
+and either the DISPLAY or WAYLAND_DISPLAY env var is set, X/Wayland
+dynamic screen geometry detection will be used instead.
+
+.TP
+.BR \-h ", " \-h\ screenheight\fR
+Allows you to specify the height of the screen area to be used for
+edge-based gestures. Should be used in conjunction with -w. If unset,
+and either the DISPLAY or WAYLAND_DISPLAY env var is set, X/Wayland
+dynamic screen geometry detection will be used instead.
 
 .TP
 .BR \-v \fR
