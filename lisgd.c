@@ -531,22 +531,31 @@ main(int argc, char *argv[])
 		if (!strcmp(argv[i], "-v")) {
 			verbose = 1;
 		} else if (!strcmp(argv[i], "-d")) {
+			if (i == argc - 1) die("option -d expects a value");
 			device = argv[++i];
 		} else if (!strcmp(argv[i], "-t")) {
+			if (i == argc - 1) die("option -t expects a value");
 			distancethreshold = atoi(argv[++i]);
 		} else if (!strcmp(argv[i], "-T")) {
+			if (i == argc - 1) die("option -T expects a value");
 			distancethreshold_pressed = atoi(argv[++i]);
 		} else if (!strcmp(argv[i], "-r")) {
+			if (i == argc - 1) die("option -r expects a value");
 			degreesleniency = atoi(argv[++i]);
 		} else if (!strcmp(argv[i], "-m")) {
+			if (i == argc - 1) die("option -m expects a value");
 			timeoutms = atoi(argv[++i]);
 		} else if (!strcmp(argv[i], "-o")) {
+			if (i == argc - 1) die("option -o expects a value");
 			orientation = atoi(argv[++i]);
 		} else if (!strcmp(argv[i], "-h")) {
+			if (i == argc - 1) die("option -h expects a value");
 			screenheight = atoi(argv[++i]);
 		} else if (!strcmp(argv[i], "-w")) {
+			if (i == argc - 1) die("option -w expects a value");
 			screenwidth = atoi(argv[++i]);
 		} else if (!strcmp(argv[i], "-g")) {
+			if (i == argc - 1) die("option -g expects a value");
 			gestsarrlen++;
 			gestsarr = realloc(gestsarr, (gestsarrlen * sizeof(Gesture)));
 			if (gestsarr == NULL) {
