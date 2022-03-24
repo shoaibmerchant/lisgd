@@ -300,8 +300,8 @@ touchdown(struct libinput_event *e)
 
 	tevent = libinput_event_get_touch_event(e);
 	slot = libinput_event_touch_get_slot(tevent);
-	xstart[slot] = libinput_event_touch_get_x(tevent);
-	ystart[slot] = libinput_event_touch_get_y(tevent);
+	xstart[slot] = libinput_event_touch_get_x_transformed(tevent, screenwidth);
+	ystart[slot] = libinput_event_touch_get_y_transformed(tevent, screenheight);
 	if (nfdown == 0) clock_gettime(CLOCK_MONOTONIC_RAW, &timedown);
 	nfdown++;
 }
@@ -324,8 +324,8 @@ touchmotion(struct libinput_event *e)
 
 	tevent = libinput_event_get_touch_event(e);
 	slot = libinput_event_touch_get_slot(tevent);
-	xend[slot] = libinput_event_touch_get_x(tevent);
-	yend[slot] = libinput_event_touch_get_y(tevent);
+	xend[slot] = libinput_event_touch_get_x_transformed(tevent, screenwidth);
+	yend[slot] = libinput_event_touch_get_y_transformed(tevent, screenheight);
 
 	if (have_actmode_pressed) {
 		Swipe swipe = gesturecalculateswipe(
