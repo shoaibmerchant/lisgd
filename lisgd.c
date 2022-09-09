@@ -416,7 +416,8 @@ run()
 		.close_restricted = libinputcloserestricted,
 	};
 
-	li = libinput_path_create_context(&interface, NULL);
+	if ((li = libinput_path_create_context(&interface, NULL)) == NULL)
+		die("Failed to initialize context");
 
 	if ((d = libinput_path_add_device(li, device)) == NULL) {
 		die("Couldn't bind event from dev filesystem");
@@ -521,7 +522,7 @@ main(int argc, char *argv[])
 	int i, j;
 	char *gestpt;
 
-	gestsarr = malloc(0);
+	gestsarr = NULL;
 	gestsarrlen = 0;
 
 	prctl(PR_SET_PDEATHSIG, SIGTERM);
@@ -642,6 +643,10 @@ main(int argc, char *argv[])
 	// E.g. no gestures passed on CLI - used gestures defined in config.def.h
 	if (gestsarrlen == 0) {
 		gestsarr = malloc(sizeof(gestures));
+		if (gestsarr == NULL) {
+			perror("Could not allocate memory");
+			exit(EXIT_FAILURE);
+		}
 		gestsarrlen = sizeof(gestures) / sizeof(Gesture);
 		memcpy(gestsarr, gestures, sizeof(gestures));
 	}
