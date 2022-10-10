@@ -36,4 +36,4 @@ install: all
 
 
 clean:
-	rm -f config.h
+	rm -f config.h lisgd.o lisgd
