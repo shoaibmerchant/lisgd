@@ -13,7 +13,9 @@
 #ifdef WITH_X11
 # include <X11/Xlib.h>
 #endif
-#include <wayland-client.h>
+#ifdef WITH_WAYLAND
+# include <wayland-client.h>
+#endif
 
 /* Defines */
 #define MAXSLOTS 20
@@ -83,9 +85,11 @@ double xstart[MAXSLOTS], xend[MAXSLOTS], ystart[MAXSLOTS], yend[MAXSLOTS];
 unsigned nfdown = 0, nfpendingswipe = 0;
 struct timespec timedown;
 static int screen;
+#ifdef WITH_WAYLAND
 struct wl_display *wl_display;
 struct wl_registry *wl_registry;
 struct wl_output *wl_output;
+#endif
 static int screenwidth = 0, screenheight = 0;
 
 void
@@ -457,6 +461,7 @@ run()
 	libinput_unref(li);
 }
 
+#ifdef WITH_WAYLAND
 static void
 display_handle_geometry(void *data, struct wl_output *wl_output, int x, int y, int physical_width, int physical_height, int subpixel, const char *make, const char *model, int transform)
 {
@@ -516,6 +521,7 @@ wl_registry_listener wl_registry_listener = {
 	.global = registry_global,
 	.global_remove = registry_global_remove,
 };
+#endif
 
 int
 main(int argc, char *argv[])
@@ -619,11 +625,15 @@ main(int argc, char *argv[])
 	// Get display size (if not set with -w/-h)
 	if (screenwidth == 0 && screenheight == 0) {
 		if (getenv("WAYLAND_DISPLAY")) {
+#ifdef WITH_WAYLAND
 			wl_display = wl_display_connect(NULL);
 			wl_registry = wl_display_get_registry(wl_display);
 			wl_registry_add_listener(wl_registry, &wl_registry_listener, NULL);
 			wl_display_roundtrip(wl_display);
 			wl_display_dispatch(wl_display);
+#else
+			die("Wayland environment detected but support for it is not enabled");
+#endif
 		} else if (getenv("DISPLAY")) {
 #ifdef WITH_X11
 			Display *dpy;

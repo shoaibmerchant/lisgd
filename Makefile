@@ -2,7 +2,7 @@ PREFIX = /usr
 SRC = lisgd.c
 OBJ = ${SRC:.c=.o}
 LDFLAGS = -g
-LIBS = -linput -lm -lwayland-client
+LIBS = -linput -lm
 
 X11INC = /usr/X11R6/include
 X11LIB = /usr/X11R6/lib
@@ -10,6 +10,11 @@ X11LIB = /usr/X11R6/lib
 ifndef WITHOUT_X11
 CPPFLAGS += -I${X11INC} -DWITH_X11
 LIBS += -L${X11LIB} -lX11
+endif
+
+ifndef WITHOUT_WAYLAND
+CPPFLAGS += -DWITH_WAYLAND
+LIBS += -lwayland-client
 endif
 
 all: options lisgd
