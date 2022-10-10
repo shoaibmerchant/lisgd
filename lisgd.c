@@ -10,7 +10,9 @@
 #include <sys/select.h>
 #include <time.h>
 #include <unistd.h>
-#include <X11/Xlib.h>
+#ifdef WITH_X11
+# include <X11/Xlib.h>
+#endif
 #include <wayland-client.h>
 
 /* Defines */
@@ -80,7 +82,6 @@ Distance pendingdistance;
 double xstart[MAXSLOTS], xend[MAXSLOTS], ystart[MAXSLOTS], yend[MAXSLOTS];
 unsigned nfdown = 0, nfpendingswipe = 0;
 struct timespec timedown;
-static Display *dpy;
 static int screen;
 struct wl_display *wl_display;
 struct wl_registry *wl_registry;
@@ -624,6 +625,8 @@ main(int argc, char *argv[])
 			wl_display_roundtrip(wl_display);
 			wl_display_dispatch(wl_display);
 		} else if (getenv("DISPLAY")) {
+#ifdef WITH_X11
+			Display *dpy;
 			if (!(dpy = XOpenDisplay(0))) {
 				die("Cannot open X display");
 			}
@@ -635,6 +638,9 @@ main(int argc, char *argv[])
 				screenwidth = DisplayHeight(dpy, screen);
 				screenheight = DisplayWidth(dpy, screen);
 			}
+#else
+			die("X11 environment detected but support for it is not enabled");
+#endif
 		} else {
 			die("Cannot detect display environment ($DISPLAY and $WAYLAND_DISPLAY unset); and no -w / -h screen geometry parameter options set");
 		}

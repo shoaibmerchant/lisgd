@@ -7,8 +7,10 @@ LIBS = -linput -lm -lwayland-client
 X11INC = /usr/X11R6/include
 X11LIB = /usr/X11R6/lib
 
-CPPFLAGS += -I${X11INC}
+ifndef WITHOUT_X11
+CPPFLAGS += -I${X11INC} -DWITH_X11
 LIBS += -L${X11LIB} -lX11
+endif
 
 all: options lisgd
 
