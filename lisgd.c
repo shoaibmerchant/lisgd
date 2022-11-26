@@ -99,12 +99,6 @@ die(char * msg)
 	exit(1);
 }
 
-void
-execcommand(char *c)
-{
-	system(c);
-}
-
 int
 gesturecalculateswipewithindegrees(double gestdegrees, double wantdegrees) {
 	return (
@@ -239,7 +233,7 @@ gestureexecute(Swipe swipe, int nfingers, Edge edge, Distance distance, ActMode 
 			&& (actmode == ActModeReleased || gestsarr[i].actmode == actmode)
 			) {
 			if (verbose) fprintf(stderr, "Execute %s\n", gestsarr[i].command);
-			execcommand(gestsarr[i].command);
+			system(gestsarr[i].command);
 			return 1; //execute first match only
 		}
 	}
@@ -361,7 +355,6 @@ touchmotion(struct libinput_event *e)
 void
 touchup(struct libinput_event *e)
 {
-	int i;
 	int slot;
 	struct libinput_event_touch *tevent;
 	struct timespec now;
@@ -406,12 +399,11 @@ touchup(struct libinput_event *e)
 }
 
 void
-run()
+run(void)
 {
 	int i;
 	struct libinput *li;
 	struct libinput_event *event;
-	struct libinput_event_touch *tevent;
 	struct libinput_device *d;
 	int selectresult;
 	fd_set fdset;
@@ -501,7 +493,6 @@ static void
 registry_global(void *data, struct wl_registry *wl_registry,
 		uint32_t name, const char *interface, uint32_t version)
 {
-	struct client_state *state = data;
 	if (strcmp(interface, "wl_output") == 0) {
 		if (!wl_output) {
 			wl_output = wl_registry_bind(wl_registry, name, &wl_output_interface, 3);
