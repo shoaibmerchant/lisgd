@@ -49,4 +49,6 @@ install: all
 
 
 clean:
-	rm -f config.h lisgd.o lisgd
+	rm -f lisgd.o lisgd
+
+.PHONY: all options install clean
