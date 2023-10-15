@@ -178,22 +178,22 @@ Edge
 gesturecalculateedge(double x0, double y0, double x1, double y1) {
 		Edge horizontal = EdgeNone;
 		Edge vertical = EdgeNone;
-		if (x0 <= edgesizeleft) {
+		if (x0 <= edgesizeleft * edgessizecaling) {
 			horizontal = EdgeLeft;
-		} else if (x0 >= screenwidth - edgesizeright) {
+		} else if (x0 >= screenwidth - edgesizeright * edgessizecaling) {
 			horizontal = EdgeRight;
-		} else if (x1 <= edgesizeleft) {
+		} else if (x1 <= edgesizeleft * edgessizecaling) {
 			horizontal = EdgeLeft;
-		} else if (x1 >= screenwidth - edgesizeright) {
+		} else if (x1 >= screenwidth - edgesizeright * edgessizecaling) {
 			horizontal = EdgeRight;
 		}
-		if (y0 <= edgesizetop) {
+		if (y0 <= edgesizetop * edgessizecaling) {
 			vertical = EdgeTop;
-		} else if (y0 >= screenheight - edgesizebottom) {
+		} else if (y0 >= screenheight - edgesizebottom * edgessizecaling) {
 			vertical = EdgeBottom;
-		} else if (y1 <= edgesizetop) {
+		} else if (y1 <= edgesizetop * edgessizecaling) {
 			vertical = EdgeTop;
-		} else if (y1 >= screenheight - edgesizebottom) {
+		} else if (y1 >= screenheight - edgesizebottom * edgessizecaling) {
 			vertical = EdgeBottom;
 		}
 		if (horizontal == EdgeLeft && vertical == EdgeTop) {
@@ -553,6 +553,9 @@ main(int argc, char *argv[])
 		} else if (!strcmp(argv[i], "-w")) {
 			if (i == argc - 1) die("option -w expects a value");
 			screenwidth = atoi(argv[++i]);
+		} else if (!strcmp(argv[i], "-s")) {
+			if (i == argc - 1) die("option -s expects a value");
+			edgessizecaling = atof(argv[++i]);
 		} else if (!strcmp(argv[i], "-g")) {
 			if (i == argc - 1) die("option -g expects a value");
 			gestsarrlen++;
